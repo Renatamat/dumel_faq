@@ -1,0 +1,10 @@
+A new question has just been submitted from {faq_name}
+Contact information:
+Email: {faq_email}
+{faq_phone_txt}
+{product_name_txt}
+HERE IS THE QUESTION:
+{faq_your_question}
+
+{shop_name} [{shop_url}] powered by
+PrestaShop(tm) [http://www.prestashop.com/] 
