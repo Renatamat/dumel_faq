@@ -25,8 +25,7 @@
     {if isset($faqs) && $faqs}
         <div class="faq_content">
             <h1 class="h1 title_block">{l s='Faqs' mod='ets_faq'}</h1>
-            <div class="row">
-                <div class="faq_list{if isset($configs.ETS_FAQ_ENABLE_ASK_QUESTION_ON_PAGE_FAQ) && !$configs.ETS_FAQ_ENABLE_ASK_QUESTION_ON_PAGE_FAQ} faq_notshow_askform{/if}">
+            <div class="faq_list">
                     <ul class="faq_group_ul front_group_ul">
                         {foreach from=$faqs item='group'}
                             {if isset($group.questions) && $group.questions}
@@ -37,7 +36,7 @@
                             {/if}
                         {/foreach}
                     </ul>
-                    <div class="faq_tab_content" class="tab-content">
+                    <div class="faq_tab_content tab-content">
                         {foreach from=$faqs item='group'}
                             <div id="group{$group.id_faq_group|intval}" class="faq_tab_pane"
                                  data-group="{$group.id_faq_group|intval}">
@@ -54,12 +53,6 @@
                             </div>
                         {/foreach}
                     </div>
-                </div>
-                {if isset($configs.ETS_FAQ_ENABLE_ASK_QUESTION_ON_PAGE_FAQ) && $configs.ETS_FAQ_ENABLE_ASK_QUESTION_ON_PAGE_FAQ}
-                    <div class="faq_ask_a_question">
-                        {hook h='displayFAQAskAQuestionForm'}
-                    </div>
-                {/if}
             </div>
         </div>
     {else}
