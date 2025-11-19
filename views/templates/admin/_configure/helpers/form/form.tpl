@@ -292,18 +292,9 @@
     {/if}
 {/block}
 {block name="input_row"}
-    {if isset($input.name) && strtolower($input.name) == 'ets_faq_form_ask_question_title'}
-        <div class="form-group-wrapper form_ask_aquestion">
-            <label class="control-label">{l s='Ask a question form:' mod='ets_faq'}</label>
-        </div>
-        <div class="form-group-wrapper row_{strtolower($input.name)|escape:'html':'UTF-8'}">
-            {$smarty.block.parent}
-        </div>
-    {else}
-        <div class="form-group-wrapper row_{strtolower($input.name)|escape:'html':'UTF-8'}">
-            {$smarty.block.parent}
-        </div>
-    {/if}
+    <div class="form-group-wrapper row_{strtolower($input.name)|escape:'html':'UTF-8'}">
+        {$smarty.block.parent}
+    </div>
 {/block}
 {block name="label"}
     {if isset($input.showRequired) && $input.showRequired}

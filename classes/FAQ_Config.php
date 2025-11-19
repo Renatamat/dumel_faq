@@ -176,37 +176,6 @@ class FAQ_Config
                 }
             }
         }
-        $ETS_FAQ_ENABLE_CAPTCHA_ASK_QUESTION_FROM = (int)Tools::getValue('ETS_FAQ_ENABLE_CAPTCHA_ASK_QUESTION_FROM');
-        $ETS_FAQ_CAPTCHA_TYPE = Tools::getValue('ETS_FAQ_CAPTCHA_TYPE');
-        if($ETS_FAQ_ENABLE_CAPTCHA_ASK_QUESTION_FROM)
-        {
-            if($ETS_FAQ_CAPTCHA_TYPE=='google')
-            {
-                $site_key = Tools::getValue('ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY');
-                $secret_key = Tools::getValue('ETS_FAQ_GOOGLE_CAPTCHA_SECRET_KEY');
-                if(!$site_key)
-                    $errors[] = $configs['ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY']['label'].' '. Ets_faq::$trans['required_text'];
-                elseif(!Validate::isCleanHtml($site_key))
-                    $errors[] = $configs['ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY']['label'].' '. Ets_faq::$trans['invalid_text'];
-                if(!$secret_key)
-                    $errors[] = $configs['ETS_FAQ_GOOGLE_CAPTCHA_SECRET_KEY']['label'].' '. Ets_faq::$trans['required_text'];
-                elseif(!Validate::isCleanHtml($secret_key))
-                    $errors[] = $configs['ETS_FAQ_GOOGLE_CAPTCHA_SECRET_KEY']['label'].' '. Ets_faq::$trans['invalid_text'];
-            }
-            elseif($ETS_FAQ_CAPTCHA_TYPE=='google_v3')
-            {
-                $site_key = Tools::getValue('ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY3');
-                $secret_key = Tools::getValue('ETS_FAQ_GOOGLE_CAPTCHA_SECRET_KEY3');
-                if(!$site_key)
-                    $errors[] = $configs['ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY3']['label'].' '. Ets_faq::$trans['required_text'];
-                elseif(!Validate::isCleanHtml($site_key))
-                    $errors[] = $configs['ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY3']['label'].' '. Ets_faq::$trans['invalid_text'];
-                if(!$secret_key)
-                    $errors[] = $configs['ETS_FAQ_GOOGLE_CAPTCHA_SECRET_KEY3']['label'].' '. Ets_faq::$trans['required_text'];
-                elseif(!Validate::isCleanHtml($secret_key))
-                    $errors[] = $configs['ETS_FAQ_GOOGLE_CAPTCHA_SECRET_KEY3']['label'].' '. Ets_faq::$trans['invalid_text'];
-            }
-        }
         if (!$errors) {
             if ($configs) {
                 foreach ($configs as $key => $config) {

@@ -16,24 +16,7 @@
  * @copyright  ETS Software Technology Co., Ltd
  * @license    Valid for 1 website (or project) for each purchase of license
  */
-$(document).ready(function(){
-    faq_func.displayForm();
-    $(document).on('change','input[name="ETS_FAQ_ENABLE_CAPTCHA_ASK_QUESTION_FROM"],#ETS_FAQ_CAPTCHA_TYPE',function(){
-        faq_func.displayForm();
-    });
-});
 var faq_func = {
-    displayForm: function(){
-        if($('input[name="ETS_FAQ_ENABLE_CAPTCHA_ASK_QUESTION_FROM"]:checked').val()==1)
-        {
-            $('.form-group.captcha').show();
-            var captcha_type = $('#ETS_FAQ_CAPTCHA_TYPE').val();
-            $('.form-group.captcha_type').hide();
-            $('.form-group.captcha_type.'+captcha_type).show();
-        }
-        else
-            $('.form-group.captcha').hide();
-    },
     search: function () {
         var faq_input = $('.faq_group_form .faq_form .auto_search_complete');
         var faq_product_ids = $('.faq_group_form .faq_form input[name=product_ids]');
