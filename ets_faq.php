@@ -396,6 +396,7 @@ class Ets_faq extends Module implements WidgetInterface
             && $this->registerHook('displayFooterProduct')
             && $this->registerHook('displayAfterProductThumbs')
             && $this->registerHook('displayProductAdditionalInfo')
+            && $this->registerHook('displayFaqAnywhere')
             && $this->registerHook('moduleRoutes')
             && $this->installDb();
     }
@@ -741,6 +742,21 @@ class Ets_faq extends Module implements WidgetInterface
         return $faqs;
     }
 
+    public function getFaqTemplateVariables(): array
+    {
+        return array(
+            'configs' => $this->getFaqConfigs(),
+            'faqs' => $this->getFaqs(true),
+        );
+    }
+
+    protected function renderFaqContent(array $templateVars): string
+    {
+        $this->context->smarty->assign($templateVars);
+
+        return $this->fetch('module:ets_faq/views/templates/front/_partials/faq-content.tpl');
+    }
+
     public function getFaqConfigs($forJs = false)
     {
         $configs = array();
@@ -799,6 +815,17 @@ class Ets_faq extends Module implements WidgetInterface
         $this->context->controller->addCSS($this->_path . 'views/css/faq-front.css');
         $this->context->controller->addCSS($this->_path . 'views/css/faq-theme.css');
         $this->context->controller->addJS($this->_path . 'views/js/faq-front.js');
+    }
+
+    public function hookDisplayFaqAnywhere(array $params)
+    {
+        $templateVars = $this->getFaqTemplateVariables();
+
+        if (empty($templateVars['faqs'])) {
+            return '';
+        }
+
+        return $this->renderFaqContent($templateVars);
     }
 
     public function hookDisplayBackOfficeHeader()

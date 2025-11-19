@@ -34,7 +34,7 @@ class Ets_faqFaqsModuleFrontController extends ModuleFrontController
     public function initContent()
     {
         parent::initContent();
-        $faqConfigs = $this->module->getFaqConfigs();
+        $faqTemplateVars = $this->module->getFaqTemplateVariables();
         if (Tools::getIsset('controller') && ($page = Tools::strtolower(trim(Tools::getValue('controller')))) && $page == 'faqs') {
             $context = Ets_faq::getInstanceContext();
             $page_rewrite = Configuration::get('ETS_FAQ_REWRITE_URL', $context->language->id) ? Configuration::get('ETS_FAQ_REWRITE_URL', $context->language->id) : $this->module->l('faqs', 'faqs');
@@ -46,9 +46,8 @@ class Ets_faqFaqsModuleFrontController extends ModuleFrontController
         $this->context->smarty->assign(array(
             'path' => $this->module->getBreadCrumb(),
             'breadcrumb' => $this->module->getBreadCrumb(),
-            'configs' => $faqConfigs,
-            'faqs' => $this->module->getFaqs(true),
         ));
+        $this->context->smarty->assign($faqTemplateVars);
         $this->setTemplate('module:ets_faq/views/templates/front/faqlist.tpl');
     }
 
