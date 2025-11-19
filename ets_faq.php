@@ -36,6 +36,14 @@ class Ets_faq extends Module implements WidgetInterface
     public static $position_hook = array();
     public $alerts;
     public $baseAdminPath;
+    /**
+     * Kept for backwards compatibility with templates/controllers that still
+     * expect version flags. PS 8.2 is our only target so this always evaluates
+     * to true and simply avoids undefined property notices.
+     *
+     * @var bool
+     */
+    public $is17 = true;
     private $_html;
 
     public function __construct()
