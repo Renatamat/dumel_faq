@@ -25,7 +25,9 @@ require_once(dirname(__FILE__) . '/classes/FAQ_Question.php');
 require_once(dirname(__FILE__) . '/classes/FAQ_Config.php');
 require_once(dirname(__FILE__) . '/classes/FAQ_Link.php');
 
-class Ets_faq extends Module
+use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
+
+class Ets_faq extends Module implements WidgetInterface
 {
     public static $groups;
     public static $questions;
@@ -33,8 +35,15 @@ class Ets_faq extends Module
     public static $configs;
     public static $position_hook = array();
     public $alerts;
-    public $is17 = false;
     public $baseAdminPath;
+    /**
+     * Kept for backwards compatibility with templates/controllers that still
+     * expect version flags. PS 8.2 is our only target so this always evaluates
+     * to true and simply avoids undefined property notices.
+     *
+     * @var bool
+     */
+    public $is17 = true;
     private $_html;
 
     public function __construct()
@@ -47,42 +56,25 @@ class Ets_faq extends Module
         $this->bootstrap = true;
         parent::__construct();
         $this->displayName = $this->l('FAQ PRO – Frequently asked questions');
-        $this->description = $this->l('Create frequently asked questions (FAQ) page and product question tab with question form.');
-$this->refs = 'https://prestahero.com/';
+        $this->description = $this->l('Create frequently asked questions (FAQ) page and product tab for PrestaShop 8.2.');
+        $this->refs = 'https://prestahero.com/';
         $this->module_key = 'a07b2a104f0823a1cb3dd05cd4d8b9fc';
-        $this->ps_versions_compliancy = array('min' => '1.6.0.0', 'max' => _PS_VERSION_);
+        $this->ps_versions_compliancy = array('min' => '8.2.0.0', 'max' => '8.2.99.99');
         $this->translates();
-
-        if (version_compare(_PS_VERSION_, '1.7', '>='))
-            $this->is17 = true;
-
-        if ($this->is17) {
-            self::$position_hook = array(
-                array(
-                    'id_option' => 'displayFooterProduct',
-                    'name' => $this->l('Bottom of product page'),
-                ),
-                array(
-                    'id_option' => 'displayAfterProductThumbs',
-                    'name' => $this->l('Left product column'),
-                ),
-                array(
-                    'id_option' => 'displayProductAdditionalInfo',
-                    'name' => $this->l('Right product column'),
-                ),
-            );
-        } else {
-            self::$position_hook = array(
-                array(
-                    'id_option' => 'displayFooterProduct',
-                    'name' => $this->l('Bottom of product page'),
-                ),
-                array(
-                    'id_option' => 'displayProductTabContent',
-                    'name' => $this->l('Product tab column'),
-                ),
-            );
-        }
+        self::$position_hook = array(
+            array(
+                'id_option' => 'displayFooterProduct',
+                'name' => $this->l('Bottom of product page'),
+            ),
+            array(
+                'id_option' => 'displayAfterProductThumbs',
+                'name' => $this->l('Left product column'),
+            ),
+            array(
+                'id_option' => 'displayProductAdditionalInfo',
+                'name' => $this->l('Right product column'),
+            ),
+        );
         self::$groups = array(
             'form' => array(
                 'legend' => array(
@@ -315,153 +307,6 @@ $this->refs = 'https://prestahero.com/';
                         )
                     ),
                 ),
-                'ETS_FAQ_FORM_ASK_QUESTION_TITLE' => array(
-                    'label' => $this->l('Title'),
-                    'type' => 'text',
-                    'required' => true,
-                    'lang' => true,
-                    'default' => $this->l('Ask a Question'),
-                    'hint' => $this->l('Forbidden characters:') . ' <>;=#{}'
-                ),
-                'ETS_FAQ_FORM_ASK_QUESTION_DESCRIPTION' => array(
-                    'type' => 'textarea',
-                    'label' => $this->l('Description'),
-                    'lang' => true,
-                    'default' => $this->l('If you have any question, don\'t hesitate to ask us. We will answer as soon as possible'),
-                    'hint' => $this->l('Forbidden characters:') . ' <>;=#{}',
-                    'validate' => 'isCleanHtml',
-                ),
-                'ETS_FAQ_SEND_QUESTION_TO_EMAIL' => array(
-                    'type' => 'text',
-                    'prefix' => ' ',
-                    'label' => $this->l('Send question to email:'),
-                    'required' => true,
-                    'col' => '4',
-                    'form_group_class' => 'send_question_email',
-                    'autocomplete' => false,
-                    'default' => Configuration::get('PS_SHOP_EMAIL') ? Configuration::get('PS_SHOP_EMAIL') : false,
-                    'validate' => 'isEmail',
-                ),
-                'ETS_FAQ_ENABLE_ASK_QUESTION_ON_PAGE_FAQ' => array(
-                    'label' => $this->l('Enable ask a question form on FAQ page'),
-                    'type' => 'switch',
-                    'default' => 1,
-                    'values' => array(
-                        array(
-                            'label' => $this->l('Yes'),
-                            'id' => 'ask_question_on_faq_page_1',
-                            'value' => 1,
-                        ),
-                        array(
-                            'label' => $this->l('No'),
-                            'id' => 'ask_question_on_faq_page_0',
-                            'value' => 0,
-                        )
-                    ),
-                ),
-                'ETS_FAQ_ENABLE_ASK_QUESTION_ON_PRODUCT_PAGE' => array(
-                    'label' => $this->l('Enable ask a question form on product page'),
-                    'type' => 'switch',
-                    'default' => 1,
-                    'values' => array(
-                        array(
-                            'label' => $this->l('Yes'),
-                            'id' => 'ask_question_on_product_page_1',
-                            'value' => 1,
-                        ),
-                        array(
-                            'label' => $this->l('No'),
-                            'id' => 'ask_question_on_product_page_0',
-                            'value' => 0,
-                        )
-                    ),
-                ),
-                'ETS_FAQ_ENABLE_CAPTCHA_ASK_QUESTION_FROM' => array(
-                    'label' => $this->l('Enable captcha on Ask a question form'),
-                    'type' => 'switch',
-                    'default' => 1,
-                    'values' => array(
-                        array(
-                            'label' => $this->l('Yes'),
-                            'id' => 'captcha_on_ask_question_from_1',
-                            'value' => 1,
-                        ),
-                        array(
-                            'label' => $this->l('No'),
-                            'id' => 'captcha_on_ask_question_from_0',
-                            'value' => 0,
-                        )
-                    ),
-                ),
-                'ETS_FAQ_NOT_REQUIRE_REGISTERED' => array(
-                    'label' => $this->l('Do not require registered user to enter captcha code'),
-                    'type' => 'switch',
-                    'default' => 1,
-                    'form_group_class' => 'captcha',
-                    'values' => array(
-                        array(
-                            'label' => $this->l('Yes'),
-                            'id' => 'ETS_FAQ_NOT_REQUIRE_REGISTERED_1',
-                            'value' => 1,
-                        ),
-                        array(
-                            'label' => $this->l('No'),
-                            'id' => 'ETS_FAQ_NOT_REQUIRE_REGISTERED_0',
-                            'value' => 0,
-                        )
-                    ),
-                ),
-                'ETS_FAQ_CAPTCHA_TYPE' => array(
-                    'type' => 'select',
-                    'label' => $this->l('Captcha type'),
-                    'form_group_class' => 'captcha',
-                    'options' => array(
-                        'query' => array(
-                            array(
-                                'id_option' => 'image',
-                                'name' => $this->l('Captcha image'),
-                            ),
-                            array(
-                                'id_option'=> 'google',
-                                'name' => $this->l('Google reCAPTCHA - V2')
-                            ),
-                            array(
-                                'id_option'=> 'google_v3',
-                                'name' => $this->l('Google reCAPTCHA - V3')
-                            )
-                        ),
-                        'id' => 'id_option',
-                        'name' => 'name'
-                    ),
-                    'default' => 'image',
-                ),
-                'ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY' => array(
-                    'type' => 'text',
-                    'showRequired' => true,
-                    'label' => $this->l('Site key'),
-                    'form_group_class' => 'captcha captcha_type google',
-                    'desc' => '<'.'a'.' href="'.'https://www.google.com/recaptcha/about/'.'">'.'https://www.google.com/recaptcha/about/'.'<'.'/'.'a'.'>',
-                ),
-                'ETS_FAQ_GOOGLE_CAPTCHA_SECRET_KEY' => array(
-                    'type' => 'text',
-                    'showRequired' => true,
-                    'label' => $this->l('Secret key'),
-                    'form_group_class' => 'captcha captcha_type google',
-                ),
-                'ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY3' => array(
-                    'type' => 'text',
-                    'showRequired' => true,
-                    'label' => $this->l('Site key'),
-                    'desc' => '<'.'a'.' href="'.'https://www.google.com/recaptcha/about/'.'">'.'https://www.google.com/recaptcha/about/'.'<'.'/'.'a'.'>',
-                    'form_group_class' => 'captcha captcha_type google_v3',
-                ),
-                'ETS_FAQ_GOOGLE_CAPTCHA_SECRET_KEY3' => array(
-                    'type' => 'text',
-                    'showRequired' => true,
-                    'label' => $this->l('Secret key'),
-                    'form_group_class' => 'captcha captcha_type google_v3',
-                ),
-                
             ),
         );
     }
@@ -546,9 +391,6 @@ $this->refs = 'https://prestahero.com/';
             && $this->registerHook('displayFAQGroupLists')
             && $this->registerHook('displayFAQQuestion')
             && $this->registerHook('displayFAQQuestionGroup')
-            && $this->registerHook('displayProductTabContent')
-            && $this->registerHook('displayFAQCaptcha')
-            && $this->registerHook('displayFAQAskAQuestionForm')
             && $this->registerHook('displayFAQConfigs')
             && $this->registerHook('displayFAQOnPageProduct')
             && $this->registerHook('displayFooterProduct')
@@ -843,7 +685,6 @@ $this->refs = 'https://prestahero.com/';
         $question = isset($params['question']) && $params['question'] ? $params['question'] : array();
         $this->smarty->assign(array(
             'question' => $question,
-            'is17' => $this->is17
         ));
         return $this->display(__FILE__, 'admin-group-question.tpl');
     }
@@ -853,7 +694,6 @@ $this->refs = 'https://prestahero.com/';
         $group = isset($params['group']) && $params['group'] ? $params['group'] : array();
         $this->smarty->assign(array(
             'group' => $this->getGroupFaqs((int)$group['id_faq_group']),
-            'is17' => $this->is17
         ));
         return $this->display(__FILE__, 'admin-group-tab.tpl');
     }
@@ -879,7 +719,6 @@ $this->refs = 'https://prestahero.com/';
         $group = isset($params['group']) && $params['group'] ? $params['group'] : array();
         $this->smarty->assign(array(
             'group' => $group,
-            'is17' => $this->is17
         ));
         return $this->display(__FILE__, 'admin-group-list.tpl');
     }
@@ -958,33 +797,8 @@ $this->refs = 'https://prestahero.com/';
     public function hookDisplayHeader()
     {
         $this->context->controller->addCSS($this->_path . 'views/css/faq-front.css');
-        if ($this->is17) {
-            $this->context->controller->addCSS($this->_path . 'views/css/fix17.css');
-        } else {
-            $this->context->controller->addCSS($this->_path . 'views/css/fix16.css');
-        }
+        $this->context->controller->addCSS($this->_path . 'views/css/faq-theme.css');
         $this->context->controller->addJS($this->_path . 'views/js/faq-front.js');
-        $this->smarty->assign(array(
-            '_VER_17' => $this->is17,
-            'static_token' => Tools::getToken(false),
-            'faq_config' => $this->getFaqConfigs(),
-            'url_ajax' => $this->context->link->getModuleLink($this->name, 'faqs', array(), true)
-        ));
-        if(($page = Tools::strtolower(trim(Tools::getValue('controller')))) && in_array($page, array('product', 'faqs')) && $this->checkUserCaptcha() )
-        {
-            if (($captcha_type = Configuration::get('ETS_FAQ_CAPTCHA_TYPE')) == 'google' || $captcha_type == 'google_v3') {
-                $this->smarty->assign(array(
-                    'ETS_FAQ_CAPTCHA_TYPE' => $captcha_type,
-                    'ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY' => Configuration::get('ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY'),
-                    'ETS_FAQ_GOOGLE_CAPTCHA_THEME' => 'light',
-                    'ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY3' => Configuration::get('ETS_FAQ_GOOGLE_CAPTCHA_SITE_KEY3'),
-                    'ETS_FAQ_GOOGLE_V3_POSITION' => 'bottomright',
-                    'hl' => $this->context->language->iso_code
-                ));
-                return $this->display(__FILE__, 'head.tpl');
-            }
-        }
-        
     }
 
     public function hookDisplayBackOfficeHeader()
@@ -992,16 +806,9 @@ $this->refs = 'https://prestahero.com/';
         if (trim(Tools::getValue('controller')) == 'AdminModules' && trim(Tools::getValue('configure')) == $this->name) {
             $this->context->controller->addCSS($this->_path . 'views/css/faq-backend.css');
             $this->context->controller->addJqueryUi('ui.sortable');
-            if ($this->is17) {
-                $this->context->controller->addJqueryUi('ui.widget');
-            }
+            $this->context->controller->addJqueryUi('ui.widget');
             $this->context->controller->addJqueryPlugin('tagify');
         }
-    }
-
-    public function addCss17($cssFile, $id = false, $local = true)
-    {
-        $this->context->controller->registerStylesheet($id ? $id : '', $cssFile, array('media' => 'all', 'priority' => 150, 'server' => $local ? 'local' : 'remote'));
     }
 
     public function modulePath()
@@ -1041,7 +848,6 @@ $this->refs = 'https://prestahero.com/';
     {
         $this->smarty->assign(array(
             'groups' => $this->getGroupFaqs(),
-            'is17' => $this->is17
         ));
         return $this->display(__FILE__, 'admin-group-tabs.tpl');
     }
@@ -1051,7 +857,6 @@ $this->refs = 'https://prestahero.com/';
         $getfaqs = $this->getFaqs();
         $this->smarty->assign(array(
             'groups' => $getfaqs,
-            'is17' => $this->is17
         ));
         return $this->display(__FILE__, 'admin-group-lists.tpl');
     }
@@ -1063,7 +868,6 @@ $this->refs = 'https://prestahero.com/';
         $this->smarty->assign(array(
             'questions' => $questions,
             'id_faq_group' => $id_faq_group,
-            'is17' => $this->is17
         ));
         return $this->display(__FILE__, 'admin-group-questions.tpl');
     }
@@ -1097,54 +901,77 @@ $this->refs = 'https://prestahero.com/';
         return $routes;
     }
 
-    public function hookDisplayFAQAskAQuestionForm($params)
+    public function renderFaqWidget(array $configuration = array())
     {
-        $customer_info = array();
-        if ($this->context->customer->isLogged() && isset($this->context->customer->id)) {
-            $customer = new Customer($this->context->customer->id);
-            $customer_info['name'] = $customer->firstname . ' ' . $customer->lastname;
-            $customer_info['email'] = $customer->email;
-            $id_address = Address::getFirstCustomerAddressId($customer->id, true);
-            $address = new Address($id_address);
-            if ($address->phone) {
-                $customer_info['phone'] = $address->phone;
-            } elseif ($address->phone_mobile) {
-                $customer_info['phone'] = $address->phone_mobile;
+        $hookName = isset($configuration['hook']) ? $configuration['hook'] : null;
+        if (!$this->shouldDisplayOnHook($hookName)) {
+            return '';
+        }
+        $variables = $this->getWidgetVariables($hookName, $configuration);
+        if (empty($variables['faqs'])) {
+            return '';
+        }
+        $this->context->smarty->assign($variables);
+        return $this->display(__FILE__, 'front-product-faqs.tpl');
+    }
+
+    public function renderWidget($hookName, array $configuration)
+    {
+        $configuration['hook'] = $hookName;
+        return $this->renderFaqWidget($configuration);
+    }
+
+    public function getWidgetVariables($hookName, array $configuration)
+    {
+        $idProduct = $this->resolveProductId($configuration);
+        if (!$idProduct) {
+            return array();
+        }
+        $faqs = $this->getFaqsInProduct($idProduct);
+        if (!$faqs) {
+            return array();
+        }
+        return array(
+            'configs' => $this->getFaqConfigs(),
+            'faqs' => $faqs,
+        );
+    }
+
+    protected function resolveProductId(array $configuration)
+    {
+        if (isset($configuration['product'])) {
+            if (is_object($configuration['product']) && isset($configuration['product']->id)) {
+                return (int)$configuration['product']->id;
+            }
+            if (is_array($configuration['product']) && isset($configuration['product']['id'])) {
+                return (int)$configuration['product']['id'];
             }
         }
-        $layout = isset($params['layout']) && $params['layout'] ? $params['layout'] : '';
-        $assign = array(
-            'configs' => $this->getFaqConfigs(),
-            'action' => $this->context->link->getModuleLink('ets_faq', 'faqs', array('send_mail' => '1'), true),
-            'layout' => $layout,
-            'img_base_dir' => $this->_path . 'views/img/',
-            'id_product' => Tools::getValue('controller')=='product' ? Tools::getValue('id_product'):0,
-            'customer_info' => $customer_info,
-        );
-        $this->context->smarty->assign($assign);
-        return $this->display(__FILE__, 'front-ask-aquestion-form.tpl');
-    }
-
-    public function hookDisplayProductTabContent($params)
-    {
-        if (!$this->is17 && Configuration::get('ETS_FAQ_POSITION_ON_PRODUCT_PAGE') == 'displayProductTabContent') {
-            return $this->_hookModule($params);
+        if (isset($configuration['id_product'])) {
+            return (int)$configuration['id_product'];
         }
+        return (int)Tools::getValue('id_product', 0);
     }
 
-    public function _hookModule($params)
+    protected function shouldDisplayOnHook($hookName = null)
     {
-        $id_product = isset($params['product']) && is_object($params['product']) ? (isset($params['product']->id) && $params['product']->id ? $params['product']->id : false) : (isset($params['product']['id']) && $params['product']['id'] ? $params['product']['id'] : Tools::getValue('id_product', false));
-        if (!$id_product)
+        if (!Configuration::get('ETS_FAQ_ENABLE_FREQUENTLY_ON_PRODUCT')) {
             return false;
-        $assign = array(
-            'configs' => $this->getFaqConfigs(),
-            'faqs' => $this->getFaqsInProduct($id_product),
-            'action' => $this->context->link->getModuleLink('ets_faq', 'faqs', array('send_mail' => '1'), true),
-            'is17' => $this->is17
-        );
-        $this->context->smarty->assign($assign);
-        return $this->display(__FILE__, 'front-product-faqs.tpl');
+        }
+        if ($hookName === null) {
+            return true;
+        }
+        if ($hookName === 'displayFAQOnPageProduct') {
+            return true;
+        }
+        if ($hookName === 'displayAfterProductThumbs' && Tools::getValue('action') === 'quickview') {
+            return false;
+        }
+        if ($hookName === 'displayProductAdditionalInfo' && Tools::getValue('action') === 'quickview') {
+            return true;
+        }
+        $position = Configuration::get('ETS_FAQ_POSITION_ON_PRODUCT_PAGE');
+        return $position === $hookName;
     }
 
     public function getFaqsInProduct($id_product)
@@ -1166,113 +993,29 @@ $this->refs = 'https://prestahero.com/';
 
     public function hookDisplayAfterProductThumbs($params)
     {
-        if ($this->is17 && Configuration::get('ETS_FAQ_POSITION_ON_PRODUCT_PAGE') == 'displayAfterProductThumbs' && Tools::getValue('action')!='quickview') {
-            return $this->_hookModule($params);
-        }
+        $params['hook'] = 'displayAfterProductThumbs';
+        return $this->renderFaqWidget($params);
     }
 
     public function hookDisplayFAQOnPageProduct($params)
     {
-        if ($this->is17 && Configuration::get('ETS_FAQ_POSITION_ON_PRODUCT_PAGE') == 'displayFAQOnPageProduct') {
-            return $this->_hookModule($params);
-        }
+        $params['hook'] = 'displayFAQOnPageProduct';
+        return $this->renderFaqWidget($params);
     }
 
     public function hookDisplayFooterProduct($params)
     {
-        if (Configuration::get('ETS_FAQ_POSITION_ON_PRODUCT_PAGE') == 'displayFooterProduct') {
-            return $this->_hookModule($params);
-        }
+        $params['hook'] = 'displayFooterProduct';
+        return $this->renderFaqWidget($params);
     }
 
     // Product left column
     public function hookDisplayProductAdditionalInfo($params)
     {
-        if (($this->is17 && Configuration::get('ETS_FAQ_POSITION_ON_PRODUCT_PAGE') == 'displayProductAdditionalInfo') || Tools::getValue('action')=='quickview' ) {
-            return $this->_hookModule($params);
-        }
+        $params['hook'] = 'displayProductAdditionalInfo';
+        return $this->renderFaqWidget($params);
     }
 
-    public function hookDisplayFAQCaptcha()
-    {
-        $rand = md5((string)rand());
-        if (($page = Tools::strtolower(trim(Tools::getValue('controller')))) && in_array($page, array('product', 'faqs')))
-            return $this->renderCaptcha($rand);
-    }
-    public function checkUserCaptcha()
-    {
-        if(Configuration::get('ETS_FAQ_ENABLE_CAPTCHA_ASK_QUESTION_FROM') && !Configuration::get('ETS_FAQ_NOT_REQUIRE_REGISTERED') || !$this->context->customer->logged)
-        {
-            return true;
-        }
-    }
-    public function renderCaptcha($rand)
-    {
-        
-        if($this->checkUserCaptcha())
-        {
-            $ETS_FAQ_CAPTCHA_TYPE = Configuration::get('ETS_FAQ_CAPTCHA_TYPE');
-            if($ETS_FAQ_CAPTCHA_TYPE=='image')
-            {
-                $this->smarty->assign(array(
-                    'captcha_image' => $this->context->link->getModuleLink('ets_faq', 'captcha', array('rand' => $rand)),
-                    'rand' => $rand,
-                    'modules_dir' => _MODULE_DIR_,
-                ));
-                return $this->display(__FILE__, 'front-faq-captcha.tpl');
-            }
-            elseif($ETS_FAQ_CAPTCHA_TYPE=='google')
-            {
-                return $this->display(__FILE__,'captcha_google.tpl');
-            }
-            elseif($ETS_FAQ_CAPTCHA_TYPE=='google_v3')
-            {
-                return $this->display(__FILE__,'captcha_google_v3.tpl');
-            }
-        }
-        
-    }
-
-    public function sendMessage($vardata)
-    {
-        $configs = $this->getFaqConfigs();
-        if (is_array($vardata) && $vardata) {
-            if(isset($vardata['id_product']) && $vardata['id_product'])
-            {
-                $product = new Product($vardata['id_product'],false,$this->context->language->id);
-                $link_product = $this->context->link->getProductLink($product);
-                $product_name = $this->displayText($product->name,'a',null,null,$link_product);
-            }
-            else
-                $product_name='';
-            $data = array(
-                '{faq_name}' => $vardata['faq_name'],
-                '{faq_phone}' =>  $vardata['faq_phone'] ? $this->displayText(sprintf($this->l('Telephone: %s'),$vardata['faq_phone']),'p'):'',
-                '{faq_phone_txt}' => $vardata['faq_phone'] ? sprintf($this->l('Telephone: %s'),$vardata['faq_phone']):'',
-                '{faq_email}' => $vardata['faq_email'],
-                '{product_name}' => isset($vardata['id_product']) && $vardata['id_product'] ? $this->displayText($this->l('Related product:').' '.$product_name,'p'):'',
-                '{product_name_txt}' =>isset($vardata['id_product']) && $vardata['id_product'] ? sprintf($this->l('Related product: %s'),$product_name):'',
-                '{faq_your_question}' => $vardata['faq_your_question'],
-                '{shop_name}' => Configuration::get('PS_SHOP_NAME'),
-            );
-            if (Validate::isEmail($configs['ETS_FAQ_SEND_QUESTION_TO_EMAIL']) && Mail::Send(
-                    (int)$this->context->language->id,
-                    'ask_a_question',
-                    Mail::l('A new question has just been submitted', (int)$this->context->language->id),
-                    $data,
-                    $configs['ETS_FAQ_SEND_QUESTION_TO_EMAIL'],
-                    null,
-                    $vardata['faq_email'],
-                    $vardata['faq_name'],
-                    null,
-                    null, dirname(__FILE__) . '/mails/', false, (int)$this->context->shop->id)
-            )
-                return true;
-            else
-                return false;
-        }
-        return false;
-    }
 
     public function getBreadCrumb()
     {
@@ -1286,9 +1029,7 @@ $this->refs = 'https://prestahero.com/';
             'title' => $title_page ? $title_page : $this->l('FAQs'),
             'url' => $this->getLink('faqs')
         );
-        if ($this->is17)
-            return array('links' => $nodes, 'count' => count($nodes));
-        return $this->displayBreadcrumb($nodes);
+        return array('links' => $nodes, 'count' => count($nodes));
     }
 
     public function getLink($controller = 'faqs', $params = array())
@@ -1300,34 +1041,6 @@ $this->refs = 'https://prestahero.com/';
             return $lbLink->getBaseLinkFriendly($context->shop->id, true) . $lbLink->getLangLinkFriendly($context->language->id, $context, $context->shop->id) . $page_rewrite;
         }
         return $context->link->getModuleLink('ets_faq', $controller, $params);
-    }
-
-    public function displayBreadcrumb($nodes)
-    {
-        $this->context->smarty->assign(array('nodes' => $nodes));
-        return $this->display(__FILE__, 'front-nodes.tpl');
-    }
-
-    public function displayText($content=null,$tag='',$class=null,$id=null,$href=null,$blank=false,$src = null,$name = null,$value = null,$type = null,$data_id_product = null,$rel = null,$attr_datas=null)
-    {
-        $this->smarty->assign(
-            array(
-                'tag_content' =>$content,
-                'tag_name' => $tag,
-                'tag_class'=> $class,
-                'tag_id' => $id,
-                'href' => $href,
-                'blank' => $blank,
-                'src' => $src,
-                'attr_name' => $name,
-                'value' => $value,
-                'type' => $type,
-                'data_id_product' => $data_id_product,
-                'attr_datas' => $attr_datas,
-                'rel' => $rel,
-            )
-        );
-        return $this->display(__FILE__,'html.tpl');
     }
 
     /**

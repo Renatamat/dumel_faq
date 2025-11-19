@@ -17,14 +17,6 @@
 .ets-help-block.ets_tooltip .tooltip-inner, :is(body:not(.no-smb-reskin)) .ets-help-block.ets_tooltip .tooltip .tooltip-inner, .ets-help-block.ets_tooltip .tooltip-inner a, :is(body:not(.no-smb-reskin)) .ets-help-block.ets_tooltip .tooltip .tooltip-inner a {
     color: #fff!important;
 }
-.form_ask_aquestion .control-label {
-    font-size: 15px !important;
-    font-weight: 600 !important;
-    margin-bottom: 20px !important;
-    margin-top: 20px;
-    text-transform: uppercase;
-    width: 24%;
-}
 html body:not(.ps-bo-rebrand):not(.adminstockmanagement):not(.adminpsthemecustoconfiguration):not(.adminpsthemecustoadvanced):not(.adminmodulesmanage):not(.adminaccess) .bootstrap [class*=col-] {
     padding-right: 15px;
     padding-left: 15px;
@@ -52,11 +44,6 @@ html .bootstrap .form-horizontal .form-group {
     max-width: 80%;
     position: relative;
     width: 1170px;
-}
-.row_ets_faq_send_question_to_email span.input-group-addon:before {
-    content: "\f003";
-    font-family: 'FontAwesome';
-    font-size: 16px;
 }
 .faq_group_form.faq_pop_up .alert {
     margin-left: 15px;
